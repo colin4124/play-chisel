@@ -9,4 +9,11 @@ package object chisel3 {
   }
 
   object UInt extends UIntFactory
+
+  type ChiselException = internal.ChiselException
+  class BindingException(message: String) extends ChiselException(message)
+  case class RebindingException(message: String) extends BindingException(message)
+  case class ExpectedChiselTypeException(message: String) extends BindingException(message)
+  case class ExpectedHardwareException(message: String) extends BindingException(message)
+  case class MonoConnectException(message: String) extends ChiselException(message)
 }
