@@ -24,4 +24,7 @@ object Main extends App {
   val w = new FileWriter(file)
   w.write(emitted)
   w.close()
+
+  val firrtl = Converter.convert(circuit)
+  println(firrtl)
 }

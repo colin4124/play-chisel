@@ -11,13 +11,13 @@ trait CommonChiselModule extends ScalaModule {
     "-feature",      // Emit warning and location for usages of features that should
     "-unchecked",    // Enable additional warnings where generated code depends on assumptions.
   )
-  override def ivyDeps = Agg(
-    ivy"edu.berkeley.cs::firrtl:1.2.0"
-  )
 }
 
 object chisel3 extends CommonChiselModule {
-  object chiselFrontend extends CommonChiselModule
-  def moduleDeps = Seq(chiselFrontend)
+  object firrtl extends CommonChiselModule
+  object chiselFrontend extends CommonChiselModule {
+    def moduleDeps = Seq(firrtl)
+  }
+  def moduleDeps = Seq(firrtl, chiselFrontend)
   def millSourcePath = super.millSourcePath / ammonite.ops.up
 }
