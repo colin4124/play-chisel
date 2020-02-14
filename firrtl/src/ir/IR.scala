@@ -50,6 +50,7 @@ object IntWidth {
       w
     } else new IntWidth(width)
   }
+  def unapply(w: IntWidth): Option[BigInt] = Some(w.width)
 }
 
 class IntWidth(val width: BigInt) extends Width
