@@ -5,6 +5,7 @@ import chisel3._
 import chisel3.internal.Builder
 import chisel3.internal.firrtl._
 
+import PrintIR._
 import java.io.{File, FileWriter}
 
 class Mux2 extends RawModule {
@@ -27,4 +28,5 @@ object Main extends App {
 
   val firrtl = Converter.convert(circuit)
   println(firrtl)
+  print_fir(firrtl)
 }
