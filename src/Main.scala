@@ -4,6 +4,7 @@ package playchisel
 import chisel3._
 import chisel3.internal.Builder
 import chisel3.internal.firrtl._
+import firrtl.{VerilogCompiler, CircuitState, ChirrtlForm}
 
 import PrintIR._
 import java.io.{File, FileWriter}
@@ -27,6 +28,14 @@ object Main extends App {
   w.close()
 
   val firrtl = Converter.convert(circuit)
-  println(firrtl)
+
+  println("======FIRRTL======")
   print_fir(firrtl)
+
+  val state = CircuitState(firrtl, ChirrtlForm)
+  val compiler = new VerilogCompiler
+  val res = compiler.compile(state)
+  println("======Compiling...======")
+  println("======After Infer Types======")
+  print_fir(res.circuit)
 }
