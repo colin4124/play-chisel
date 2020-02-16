@@ -16,7 +16,9 @@ abstract class PrimOp extends FirrtlNode
 
 /** Expression
   */
-abstract class Expression extends FirrtlNode
+abstract class Expression extends FirrtlNode {
+  def tpe: Type
+}
 
 case class Reference(name: String, tpe: Type) extends Expression with HasName
 
