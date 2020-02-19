@@ -1,6 +1,7 @@
 // play-chisel/src/PrintIR.scala
 package playchisel
 
+import firrtl._
 import firrtl.{ir => fir}
 
 object PrintIR {
@@ -34,7 +35,18 @@ object PrintIR {
         s"DoPrim\n${tab(l+1)}${op}\n${tab(l+1)}"      +
         (args map {x => e_str(x, l+1)} mkString ", ") +
         s"\n${tab(l+1)}${type_str(tpe)}"
+      case WRef(n, t, k, f) => s"WRef(${n}: ${type_str(t)} ${k_str(k)} ${f_str(f)})"
     }
+  }
+  def k_str(k: Kind): String = k match {
+    case PortKind    => "PortKind"
+    case NodeKind    => "NodeKind"
+    case UnknownKind => "UnknownKind"
+  }
+  def f_str(f: Flow): String = f match {
+    case SourceFlow  => "SourceFlow"
+    case SinkFlow    => "SinkFlow"
+    case UnknownFlow => "UnknownFlow"
   }
 
   def print_fir(ast: fir.Circuit) = {

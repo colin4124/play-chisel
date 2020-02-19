@@ -16,8 +16,7 @@ class ChirrtlToHighFirrtl extends CoreTransform {
 class IRToWorkingIR extends CoreTransform {
   def inputForm = HighForm
   def outputForm = HighForm
-  def transforms = Seq()
-  // def transforms = Seq(passes.ToWorkingIR)
+  def transforms = Seq(passes.ToWorkingIR)
 }
 class ResolveAndCheck extends CoreTransform {
   def inputForm = HighForm

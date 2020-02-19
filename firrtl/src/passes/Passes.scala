@@ -21,3 +21,17 @@ trait Pass extends Transform {
     CircuitState(result, outputForm)
   }
 }
+
+object ToWorkingIR extends Pass {
+  def toExp(e: Expression): Expression = e map toExp match {
+    case ex: Reference => WRef(ex.name, ex.tpe, UnknownKind, UnknownFlow)
+    case ex => ex
+  }
+
+  def toStmt(s: Statement): Statement = s map toExp match {
+    case sx => sx map toStmt
+  }
+
+  def run (c:Circuit): Circuit =
+    c copy (modules = c.modules map (_ map toStmt))
+}
