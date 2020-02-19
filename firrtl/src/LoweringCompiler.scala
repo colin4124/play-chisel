@@ -21,7 +21,9 @@ class IRToWorkingIR extends CoreTransform {
 class ResolveAndCheck extends CoreTransform {
   def inputForm = HighForm
   def outputForm = HighForm
-  def transforms = Seq()
+  def transforms = Seq(
+    passes.ResolveKinds,
+  )
   // def transforms = Seq(
   //   passes.ResolveKinds,
   //   passes.ResolveFlows,

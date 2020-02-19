@@ -36,6 +36,6 @@ object Main extends App {
   val compiler = new VerilogCompiler
   val res = compiler.compile(state)
   println("======Compiling...======")
-  println("======After ToWorkingIR======")
+  println("======After ResolveKinds======")
   print_fir(res.circuit)
 }
