@@ -6,6 +6,8 @@ import firrtl.ir._
 import firrtl.Utils._
 import firrtl.Mappers._
 
+class PassException(message: String) extends FirrtlUserException(message)
+
 trait Pass extends Transform {
   def inputForm: CircuitForm = UnknownForm
   def outputForm: CircuitForm = UnknownForm

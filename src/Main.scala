@@ -29,13 +29,7 @@ object Main extends App {
 
   val firrtl = Converter.convert(circuit)
 
-  println("======FIRRTL======")
-  print_fir(firrtl)
-
   val state = CircuitState(firrtl, ChirrtlForm)
   val compiler = new VerilogCompiler
-  val res = compiler.compile(state)
-  println("======Compiling...======")
-  println("======After ResolveFlows======")
-  print_fir(res.circuit)
+  compiler.compile(state)
 }

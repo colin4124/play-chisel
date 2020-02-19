@@ -117,6 +117,9 @@ abstract class GroundType extends Type {
   val width: Width
   def mapType(f: Type => Type): Type = this
 }
+object GroundType {
+  def unapply(ground: GroundType): Option[Width] = Some(ground.width)
+}
 
 case class UIntType(width: Width) extends GroundType {
   def mapWidth(f: Width => Width): Type = UIntType(f(width))

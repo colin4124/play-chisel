@@ -15,10 +15,13 @@ case object SinkFlow extends Flow
 case object UnknownFlow extends Flow
 
 case class WRef(name: String, tpe: Type, kind: Kind, flow: Flow) extends Expression {
+  def serialize: String = name
   def mapExpr(f: Expression => Expression): Expression = this
   def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
   def mapWidth(f: Width => Width): Expression = this
 }
+
+class WrappedExpression(val e1: Expression)
 
 private[firrtl] sealed trait HasMapWidth {
   def mapWidth(f: Width => Width): Width
