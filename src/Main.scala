@@ -6,7 +6,6 @@ import chisel3.internal.Builder
 import chisel3.internal.firrtl._
 import firrtl.{VerilogCompiler, CircuitState, ChirrtlForm}
 
-import PrintIR._
 import java.io.{File, FileWriter}
 
 class Mux2 extends RawModule {

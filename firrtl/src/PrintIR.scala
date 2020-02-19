@@ -1,5 +1,5 @@
-// play-chisel/src/PrintIR.scala
-package playchisel
+// play-chisel/firrtl/src/PrintIR.scala
+package debug
 
 import firrtl._
 import firrtl.{ir => fir}
