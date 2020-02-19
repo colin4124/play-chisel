@@ -23,11 +23,8 @@ class ResolveAndCheck extends CoreTransform {
   def outputForm = HighForm
   def transforms = Seq(
     passes.ResolveKinds,
+    passes.ResolveFlows,
   )
-  // def transforms = Seq(
-  //   passes.ResolveKinds,
-  //   passes.ResolveFlows,
-  // )
 }
 class HighFirrtlToMiddleFirrtl extends CoreTransform {
   def inputForm = HighForm
