@@ -54,31 +54,16 @@ class VerilogEmitter extends SeqTransform with Emitter {
     def a0: Expression = doprim.args.head
     def a1: Expression = doprim.args(1)
 
-    def is_same_op(a: Expression) = a match {
-      case d: DoPrim if (d.op != doprim.op) => false
-      case _ => true
-    }
-
     def checkArgumentLegality(e: Expression) = e match {
-      case _: WRef | _: Expression =>
+      case _: WRef =>
       case _ => throw EmitterException(s"Can't emit ${e.getClass.getName} as PrimOp argument")
     }
 
+    doprim.args foreach checkArgumentLegality
     doprim.op match {
-      case other => doprim.args foreach checkArgumentLegality
-    }
-    doprim.op match {
-      case Not =>
-        if (is_same_op(a0)) Seq("~ ", a0)
-        else Seq("~ ", "(", a0, ")")
-      case And =>
-        val a0_seq = if (is_same_op(a0)) Seq(cast_as(a0)) else Seq("(", cast_as(a0), ")")
-        val a1_seq = if (is_same_op(a1)) Seq(cast_as(a1)) else Seq("(", cast_as(a1), ")")
-        a0_seq ++ Seq(" & ") ++ a1_seq
-      case Or =>
-        val a0_seq = if (is_same_op(a0)) Seq(cast_as(a0)) else Seq("(", cast_as(a0), ")")
-        val a1_seq = if (is_same_op(a1)) Seq(cast_as(a1)) else Seq("(", cast_as(a1), ")")
-        a0_seq ++ Seq(" | ") ++ a1_seq
+      case Not => Seq("~ ", a0)
+      case And => Seq(cast_as(a0), " & ", cast_as(a1))
+      case Or => Seq(cast_as(a0), " | ", cast_as(a1))
     }
   }
   class VerilogRender(m: Module)(implicit writer: Writer) {
