@@ -83,7 +83,7 @@ object Builder {
   val components: ArrayBuffer[Component] = ArrayBuffer[Component]()
   var currentModule: Option[BaseModule] = None
 
-  def globalNamespace: Namespace = Namespace.empty
+  val globalNamespace: Namespace = Namespace.empty
 
   def forcedUserModule: RawModule = currentModule match {
     case Some(module: RawModule) => module

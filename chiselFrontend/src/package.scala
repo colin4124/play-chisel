@@ -9,6 +9,7 @@ package object chisel3 {
   }
 
   object UInt extends UIntFactory
+  object Bool extends BoolFactory
 
   type ChiselException = internal.ChiselException
   class BindingException(message: String) extends ChiselException(message)

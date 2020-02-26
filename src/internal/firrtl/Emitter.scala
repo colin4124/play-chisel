@@ -75,6 +75,7 @@ private class Emitter(circuit: Circuit) {
     val firrtlLine = e match {
       case e: DefPrim[_] => s"node ${e.name} = ${e.op.name}(${e.args.map(_.fullName(ctx)).mkString(", ")})"
       case e: Connect => s"${e.loc.fullName(ctx)} <= ${e.exp.fullName(ctx)}"
+      case e: DefInstance => s"inst ${e.name} of ${e.id.name}"
     }
     firrtlLine
   }

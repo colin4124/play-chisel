@@ -4,13 +4,22 @@ package chisel3
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 
 import chisel3.internal._
+import chisel3.internal.Builder._
 import chisel3.internal.firrtl._
 
 object Module {
   def apply[T <: BaseModule](bc: => T): T = {
+    val parent = Builder.currentModule
     val module: T = bc
+    Builder.currentModule = parent
+
     val component = module.generateComponent()
     Builder.components += component
+
+    if(!Builder.currentModule.isEmpty) {
+      pushCommand(DefInstance(module, component.ports))
+    }
+
     module
   }
   def currentModule: Option[BaseModule] = Builder.currentModule
@@ -59,7 +68,7 @@ abstract class BaseModule extends HasId {
 
   def desiredName: String = this.getClass.getName.split('.').last
 
-  final lazy val name = desiredName
+  final lazy val name = Builder.globalNamespace.name(desiredName)
 
   protected def nameIds(rootClass: Class[_]): HashMap[HasId, String] = {
     val names = new HashMap[HasId, String]()

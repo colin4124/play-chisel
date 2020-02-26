@@ -12,6 +12,7 @@ object PrimOp {
   val BitAndOp = PrimOp("and")
   val BitOrOp  = PrimOp("or")
   val BitNotOp = PrimOp("not")
+  val BitsExtractOp = PrimOp("bits")
 }
 
 abstract class Arg {
@@ -30,20 +31,36 @@ case class Node(id: HasId) extends Arg {
   }
 }
 
+case class ILit(n: BigInt) extends Arg {
+  def name: String = n.toString
+}
+
 case class Ref(name: String) extends Arg
-case class ModuleIO(mod: BaseModule, name: String) extends Arg
+
+case class ModuleIO(mod: BaseModule, name: String) extends Arg {
+  override def fullName(ctx: Component): String =
+    if (mod eq ctx.id) name else s"${mod.getRef.name}.$name"
+}
 
 sealed abstract class Width {
   type W = Int
   def max(that: Width): Width = this.op(that, _ max _)
 
+  def known: Boolean
+  def get: W
+
   protected def op(that: Width, f: (W, W) => W): Width
 }
 sealed case class UnknownWidth() extends Width {
+  def known: Boolean = false
+  def get: Int = None.get
   def op(that: Width, f: (W, W) => W): Width = this
   override def toString: String = ""
 }
 sealed case class KnownWidth(value: Int) extends Width {
+  require(value >= 0)
+  def known: Boolean = true
+  def get: Int = value
   def op(that: Width, f: (W, W) => W): Width = that match {
     case KnownWidth(x) => KnownWidth(f(value, x))
     case _ => that
@@ -62,6 +79,7 @@ abstract class Definition extends Command  {
   def name: String = id.getRef.name
 }
 case class DefPrim[T <: Data](id: T, op: PrimOp, args: Arg*) extends Definition
+case class DefInstance(id: BaseModule, ports: Seq[Port]) extends Definition
 case class Connect(loc: Node, exp: Arg) extends Command
 
 case class Port(id: Data, dir: SpecifiedDirection)

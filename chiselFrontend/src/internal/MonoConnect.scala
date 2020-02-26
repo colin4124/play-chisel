@@ -41,6 +41,47 @@ private[chisel3] object MonoConnect {
         case (Input,        _) => throw UnwritableSinkException
       }
     }
+    // CASE: Context is same module as sink node and right node is in a child module
+    else if( (sink_mod == context_mod) &&
+              (source_mod._parent.map(_ == context_mod).getOrElse(false)) ) {
+      // Thus, right node better be a port node and thus have a direction
+      ((sink_direction, source_direction): @unchecked) match {
+        //    SINK        SOURCE
+        //    CURRENT MOD CHILD MOD
+        case (Internal,   Output)   => issueConnect(sink, source)
+        case (Internal,   Input)    => issueConnect(sink, source)
+        case (Output,     Output)   => issueConnect(sink, source)
+        case (Output,     Input)    => issueConnect(sink, source)
+        case (Input,      _)        => throw UnwritableSinkException
+      }
+    }
+    // CASE: Context is same module as source node and sink node is in child module
+    else if( (source_mod == context_mod) &&
+              (sink_mod._parent.map(_ == context_mod).getOrElse(false)) ) {
+      // Thus, left node better be a port node and thus have a direction
+      ((sink_direction, source_direction): @unchecked) match {
+        //    SINK          SOURCE
+        //    CHILD MOD     CURRENT MOD
+        case (Input,        _) => issueConnect(sink, source)
+        case (Output,       _) => throw UnwritableSinkException
+        case (Internal,     _) => throw UnwritableSinkException
+      }
+    }
+    // CASE: Context is the parent module of both the module containing sink node
+    //                                        and the module containing source node
+    //   Note: This includes case when sink and source in same module but in parent
+    else if( (sink_mod._parent.map(_ == context_mod).getOrElse(false)) &&
+              (source_mod._parent.map(_ == context_mod).getOrElse(false))
+    ) {
+      // Thus both nodes must be ports and have a direction
+      ((sink_direction, source_direction): @unchecked) match {
+        //    SINK      SOURCE
+        //    CHILD MOD CHILD MOD
+        case (Input,    _) => issueConnect(sink, source)
+        case (Output,   _) => throw UnwritableSinkException
+        case (Internal, _) => throw UnwritableSinkException
+      }
+    }
     else throw UnknownRelationException
   }
 

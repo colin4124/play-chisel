@@ -11,6 +11,16 @@ sealed abstract class Bits(private[chisel3] val width: Width) extends Element {
 
   def cloneType: this.type = cloneTypeWidth(width)
 
+  final def apply(x: BigInt): Bool =  {
+    if (x < 0) {
+      throwException(s"Negative bit indices are illegal (got $x)")
+    }
+    requireIsHardware(this, "bits to be indexed")
+    pushOp(DefPrim(Bool(), BitsExtractOp, this.ref, ILit(x), ILit(x)))
+  }
+
+  final def apply(x: Int): Bool = apply(BigInt(x))
+
   private[chisel3] def unop[T <: Data](dest: T, op: PrimOp): T = {
     requireIsHardware(this, "bits operated on")
     pushOp(DefPrim(dest, op, this.ref))
@@ -34,4 +44,13 @@ sealed class UInt private[chisel3] (width: Width) extends Bits(width) with Num[U
 
   def unary_~ (): UInt =
     unop(UInt(width = width), BitNotOp)
+}
+
+sealed trait Reset extends Element
+
+sealed class Bool() extends UInt(1.W) with Reset {
+  private[chisel3] override def cloneTypeWidth(w: Width): this.type = {
+    require(!w.known || w.get == 1)
+    new Bool().asInstanceOf[this.type]
+  }
 }
