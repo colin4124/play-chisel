@@ -7,6 +7,7 @@ import chisel3.internal.firrtl._
 import firrtl.{VerilogCompiler, CircuitState, ChirrtlForm}
 
 import chisel3.debug.PrintIR.print_ir
+import firrtl.debug.PrintIR.print_fir
 
 import java.io.{File, FileWriter}
 
@@ -53,7 +54,8 @@ object Main extends App {
   w.close()
 
   print_ir(circuit)
-  // val firrtl = Converter.convert(circuit)
+  val firrtl = Converter.convert(circuit)
+  print_fir(firrtl)
 
   // val state = CircuitState(firrtl, ChirrtlForm)
   // val compiler = new VerilogCompiler

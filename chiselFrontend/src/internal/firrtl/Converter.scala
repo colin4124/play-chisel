@@ -6,6 +6,7 @@ import scala.collection.immutable.Queue
 
 import chisel3._
 import firrtl.{ir => fir}
+import chisel3.internal.throwException
 
 object Converter {
   def convert(circuit: Circuit): fir.Circuit =
@@ -13,7 +14,7 @@ object Converter {
 
   def convert(component: Component): fir.DefModule = component match {
     case ctx @ DefModule(_, name, ports, cmds) =>
-      fir.Module(name, ports.map(p => convert(p)), convert(cmds.toList))
+      fir.Module(name, ports.map(p => convert(p)), convert(cmds.toList, ctx))
   }
 
   def convert(port: Port, topDir: SpecifiedDirection = SpecifiedDirection.Unspecified): fir.Port = {
@@ -35,12 +36,12 @@ object Converter {
     case KnownWidth(value) => fir.IntWidth(value)
   }
 
-  def convert(cmds: Seq[Command]): fir.Statement = {
+  def convert(cmds: Seq[Command], ctx: Component): fir.Statement = {
     @tailrec
     def rec(acc: Queue[fir.Statement])(cmds: Seq[Command]): Seq[fir.Statement] = {
       if (cmds.isEmpty) {
         acc
-      } else convertSimpleCommand(cmds.head) match {
+      } else convertSimpleCommand(cmds.head, ctx) match {
         case Some(stmt) =>
           rec(acc :+ stmt)(cmds.tail)
         case None => rec(acc)(cmds)
@@ -49,25 +50,34 @@ object Converter {
     fir.Block(rec(Queue.empty)(cmds))
   }
 
-  def convertSimpleCommand(cmd: Command): Option[fir.Statement] = cmd match {
+  def convertSimpleCommand(cmd: Command, ctx: Component): Option[fir.Statement] = cmd match {
     case e: DefPrim[_] =>
-      val args = e.args map convert
-      val expr = fir.DoPrim(convert(e.op), args, Seq(), fir.UnknownType)
+      val consts = e.args.collect { case ILit(i) => i }
+      val args = e.args.flatMap {
+        case _: ILit => None
+        case other => Some(convert(other, ctx))
+      }
+      val expr = fir.DoPrim(convert(e.op), args, consts, fir.UnknownType)
       Some(fir.DefNode(e.name, expr))
     case Connect(loc, exp) =>
-      Some(fir.Connect(convert(loc), convert(exp)))
+      Some(fir.Connect(convert(loc, ctx), convert(exp, ctx)))
+    case e @ DefInstance(id, _) =>
+      Some(fir.DefInstance(e.name, id.name))
     case _ => None
   }
 
   def convert(op: PrimOp): fir.PrimOp = firrtl.PrimOps.fromString(op.name)
 
-  def convert(arg: Arg): fir.Expression = arg match {
+  def convert(arg: Arg, ctx: Component): fir.Expression = arg match {
     case Node(id) =>
-      convert(id.getRef)
+      convert(id.getRef, ctx)
     case Ref(name) =>
       fir.Reference(name, fir.UnknownType)
     case ModuleIO(mod, name) =>
-      fir.Reference(name, fir.UnknownType)
+      if (mod eq ctx.id) fir.Reference(name, fir.UnknownType)
+      else fir.SubField(fir.Reference(mod.getRef.name, fir.UnknownType), name, fir.UnknownType)
+    case lit: ILit =>
+      throwException(s"Internal Error! Unexpected ILit: $lit")
   }
 }
 

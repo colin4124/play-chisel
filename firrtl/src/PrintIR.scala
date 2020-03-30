@@ -1,5 +1,5 @@
 // play-chisel/firrtl/src/PrintIR.scala
-package debug
+package firrtl.debug
 
 import firrtl._
 import firrtl.{ir => fir}
@@ -26,11 +26,13 @@ object PrintIR {
       case fir.Block(s) => s"${tab(l)}Block\n" + (s map { x => stmt_str(x, l+1) } mkString "\n")
       case fir.Connect(left, right) =>
         s"${tab(l)}Connect\n${tab(l+1)}${e_str(left, l+1)} ${e_str(right, l+1)}"
+      case fir.DefInstance(n, m) => s"${tab(l)}DefInstance: inst $n of $m"
     }
   }
   def e_str(e: fir.Expression, l: Int): String = {
     e match {
       case fir.Reference(n, t) => s"Reference(${n}: ${type_str(t)})"
+      case fir.SubField(e, n, t) => s"SubField(${e_str(e, l)}.$n, ${type_str(t)})"
       case fir.DoPrim(op, args, const, tpe) =>
         s"DoPrim\n${tab(l+1)}${op}\n${tab(l+1)}"      +
         (args map {x => e_str(x, l+1)} mkString ", ") +

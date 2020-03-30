@@ -29,6 +29,12 @@ case class Reference(name: String, tpe: Type) extends Expression with HasName {
   def mapWidth(f: Width => Width): Expression = this
 }
 
+case class SubField(expr: Expression, name: String, tpe: Type) extends Expression with HasName {
+  def mapExpr(f: Expression => Expression): Expression = this.copy(expr = f(expr))
+  def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
+  def mapWidth(f: Width => Width): Expression = this
+}
+
 case class DoPrim(op: PrimOp, args: Seq[Expression], consts: Seq[BigInt], tpe: Type) extends Expression {
   def mapExpr(f: Expression => Expression): Expression = this.copy(args = args map f)
   def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
@@ -47,6 +53,17 @@ abstract class Statement extends FirrtlNode {
   def foreachExpr(f: Expression => Unit) : Unit
   def foreachType(f: Type => Unit)       : Unit
   def foreachString(f: String => Unit)   : Unit
+}
+
+case class DefInstance(name: String, module: String) extends Statement with IsDeclaration {
+  def mapStmt(f: Statement => Statement): Statement = this
+  def mapExpr(f: Expression => Expression): Statement = this
+  def mapType(f: Type => Type): Statement = this
+  def mapString(f: String => String): Statement = DefInstance(f(name), module)
+  def foreachStmt(f: Statement => Unit): Unit = Unit
+  def foreachExpr(f: Expression => Unit): Unit = Unit
+  def foreachType(f: Type => Unit): Unit = Unit
+  def foreachString(f: String => Unit): Unit = f(name)
 }
 
 case class DefNode(name: String, value: Expression) extends Statement with IsDeclaration {

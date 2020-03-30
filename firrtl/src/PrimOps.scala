@@ -11,9 +11,11 @@ object PrimOps {
   case object And extends PrimOp { override def toString = "and" }
   /** Bitwise Or */
   case object Or extends PrimOp { override def toString = "or" }
+  /** Bit Extraction */
+  case object Bits extends PrimOp { override def toString = "bits" }
 
   private lazy val builtinPrimOps: Seq[PrimOp] =
-    Seq(Not, And, Or)
+    Seq(Not, And, Or, Bits)
   private lazy val strToPrimOp: Map[String, PrimOp] = {
     builtinPrimOps.map { case op : PrimOp=> op.toString -> op }.toMap
   }
