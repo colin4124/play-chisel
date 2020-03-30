@@ -6,6 +6,8 @@ import chisel3.internal.Builder
 import chisel3.internal.firrtl._
 import firrtl.{VerilogCompiler, CircuitState, ChirrtlForm}
 
+import chisel3.debug.PrintIR.print_ir
+
 import java.io.{File, FileWriter}
 
 class Mux2 extends RawModule {
@@ -50,6 +52,7 @@ object Main extends App {
   w.write(emitted)
   w.close()
 
+  print_ir(circuit)
   // val firrtl = Converter.convert(circuit)
 
   // val state = CircuitState(firrtl, ChirrtlForm)
