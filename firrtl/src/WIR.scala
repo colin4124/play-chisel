@@ -14,11 +14,32 @@ case object SourceFlow extends Flow
 case object SinkFlow extends Flow
 case object UnknownFlow extends Flow
 
+private[firrtl] trait GenderFromFlow { this: Expression =>
+  val flow: Flow
+}
+
 case class WRef(name: String, tpe: Type, kind: Kind, flow: Flow) extends Expression {
   def serialize: String = name
   def mapExpr(f: Expression => Expression): Expression = this
   def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
   def mapWidth(f: Width => Width): Expression = this
+}
+
+case class WSubField(expr: Expression, name: String, tpe: Type, flow: Flow) extends Expression with GenderFromFlow {
+  def mapExpr(f: Expression => Expression): Expression = this.copy(expr = f(expr))
+  def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
+  def mapWidth(f: Width => Width): Expression = this
+}
+
+case class WDefInstance(name: String, module: String, tpe: Type) extends Statement with IsDeclaration {
+  def mapExpr(f: Expression => Expression): Statement = this
+  def mapStmt(f: Statement => Statement): Statement = this
+  def mapType(f: Type => Type): Statement = this.copy(tpe = f(tpe))
+  def mapString(f: String => String): Statement = this.copy(name = f(name))
+  def foreachStmt(f: Statement => Unit): Unit = Unit
+  def foreachExpr(f: Expression => Unit): Unit = Unit
+  def foreachType(f: Type => Unit): Unit = f(tpe)
+  def foreachString(f: String => Unit): Unit = f(name)
 }
 
 class WrappedExpression(val e1: Expression)

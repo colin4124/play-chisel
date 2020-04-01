@@ -6,6 +6,8 @@ import firrtl.ir._
 import firrtl.Utils._
 import firrtl.Mappers._
 
+import debug.PrintIR.print_fir
+
 class PassException(message: String) extends FirrtlUserException(message)
 
 trait Pass extends Transform {
@@ -27,13 +29,20 @@ trait Pass extends Transform {
 object ToWorkingIR extends Pass {
   def toExp(e: Expression): Expression = e map toExp match {
     case ex: Reference => WRef(ex.name, ex.tpe, UnknownKind, UnknownFlow)
+    case ex: SubField => WSubField(ex.expr, ex.name, ex.tpe, UnknownFlow)
     case ex => ex
   }
 
   def toStmt(s: Statement): Statement = s map toExp match {
+    case sx: DefInstance => WDefInstance(sx.name, sx.module, UnknownType)
     case sx => sx map toStmt
   }
 
-  def run (c:Circuit): Circuit =
-    c copy (modules = c.modules map (_ map toStmt))
+  def run (c:Circuit): Circuit = {
+    println("Run ToWorkingIR  ......")
+    val res = c copy (modules = c.modules map (_ map toStmt))
+    println("Done ToWorkingIR.")
+    print_fir(res)
+    res
+  }
 }

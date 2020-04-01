@@ -38,6 +38,7 @@ object PrintIR {
       case fir.Connect(left, right) =>
         s"${tab(l)}Connect\n${tab(l+1)}${e_str(left, l+1)}\n${tab(l+1)}${e_str(right, l+1)}"
       case fir.DefInstance(n, m) => s"${tab(l)}DefInstance: inst $n of $m"
+      case WDefInstance(n, m, t) => s"${tab(l)}WDefInstance($n, $m, $t)"
     }
   }
   def e_str(e: fir.Expression, l: Int): String = {
@@ -49,6 +50,7 @@ object PrintIR {
         (args map {x => e_str(x, l+1)} mkString ", ") +
         s"\n${tab(l+1)}${type_str(tpe)}"
       case WRef(n, t, k, f) => s"WRef(${n}: ${type_str(t)} ${k_str(k)} ${f_str(f)})"
+      case WSubField(e, n, t, f) => s"WSubField(${e_str(e, l)}.${n}: ${type_str(t)} ${f_str(f)})"
     }
   }
   def k_str(k: Kind): String = k match {
