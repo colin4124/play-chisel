@@ -55,11 +55,6 @@ trait SeqTransformBased {
 abstract class SeqTransform extends Transform with SeqTransformBased {
   def execute(state: CircuitState): CircuitState = {
     val ret = runTransforms(state)
-    if (transforms.nonEmpty) {
-      println(s"======After ${this.getClass.getSimpleName}======")
-      print_fir(ret.circuit)
-      println("===================")
-    }
     CircuitState(ret.circuit, outputForm)
   }
 }

@@ -22,9 +22,19 @@ object PrimOps {
 
   def fromString(op: String): PrimOp = strToPrimOp(op)
 
+  def PLUS (w1:Width, w2:Width) : Width = (w1, w2) match {
+    case (IntWidth(i), IntWidth(j)) => IntWidth(i + j)
+    case _ => PlusWidth(w1, w2)
+  }
+
   def MAX (w1:Width, w2:Width) : Width = (w1, w2) match {
     case (IntWidth(i), IntWidth(j)) => IntWidth(max(i,j))
     case _ => MaxWidth(Seq(w1, w2))
+  }
+
+  def MINUS (w1:Width, w2:Width) : Width = (w1, w2) match {
+    case (IntWidth(i), IntWidth(j)) => IntWidth(i - j)
+    case _ => MinusWidth(w1, w2)
   }
 
   def set_primop_type (e:DoPrim) : DoPrim = {
@@ -32,6 +42,8 @@ object PrimOps {
     def t2 = e.args(1).tpe
     def w1 = getWidth(e.args.head.tpe)
     def w2 = getWidth(e.args(1).tpe)
+    def c1 = IntWidth(e.consts.head)
+    def c2 = IntWidth(e.consts(1))
     e copy (tpe = e.op match {
       case Not => t1 match {
         case (_: UIntType) => UIntType(w1)
@@ -39,6 +51,10 @@ object PrimOps {
       }
       case And | Or => (t1, t2) match {
         case (_: UIntType, _: UIntType) => UIntType(MAX(w1, w2))
+        case _ => UnknownType
+      }
+      case Bits => t1 match {
+        case (_: UIntType) => UIntType(PLUS(MINUS(c1, c2), IntWidth(1)))
         case _ => UnknownType
       }
     })

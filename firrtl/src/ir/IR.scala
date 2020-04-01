@@ -124,6 +124,14 @@ class IntWidth(val width: BigInt) extends Width
 
 case object UnknownWidth extends Width
 
+/** Orientation of [[Field]] */
+abstract class Orientation extends FirrtlNode
+case object Default extends Orientation
+case object Flip extends Orientation
+
+/** Field of [[BundleType]] */
+case class Field(name: String, flip: Orientation, tpe: Type) extends FirrtlNode with HasName
+
 /** Type
   */
 abstract class Type extends FirrtlNode {
@@ -138,9 +146,19 @@ object GroundType {
   def unapply(ground: GroundType): Option[Width] = Some(ground.width)
 }
 
+abstract class AggregateType extends Type {
+  def mapWidth(f: Width => Width): Type = this
+}
+
 case class UIntType(width: Width) extends GroundType {
   def mapWidth(f: Width => Width): Type = UIntType(f(width))
 }
+
+case class BundleType(fields: Seq[Field]) extends AggregateType {
+  def mapType(f: Type => Type): Type =
+    BundleType(fields map (x => x.copy(tpe = f(x.tpe))))
+}
+
 case object UnknownType extends Type {
   def mapType(f: Type => Type): Type = this
   def mapWidth(f: Width => Width): Type = this

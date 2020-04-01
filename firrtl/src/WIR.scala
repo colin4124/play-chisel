@@ -27,6 +27,12 @@ private[firrtl] sealed trait HasMapWidth {
   def mapWidth(f: Width => Width): Width
 }
 
+case class PlusWidth(arg1: Width, arg2: Width) extends Width with HasMapWidth {
+  def mapWidth(f: Width => Width): Width = PlusWidth(f(arg1), f(arg2))
+}
+case class MinusWidth(arg1: Width, arg2: Width) extends Width with HasMapWidth {
+  def mapWidth(f: Width => Width): Width = MinusWidth(f(arg1), f(arg2))
+}
 case class MaxWidth(args: Seq[Width]) extends Width with HasMapWidth {
   def mapWidth(f: Width => Width): Width = MaxWidth(args map f)
 }

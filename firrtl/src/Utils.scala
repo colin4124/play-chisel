@@ -35,7 +35,25 @@ object Utils {
 
   def max(a: BigInt, b: BigInt): BigInt = if (a >= b) a else b
 
+  def module_type(m: DefModule): BundleType = BundleType(m.ports map {
+    case Port(name, dir, tpe) => Field(name, to_flip(dir), tpe)
+  })
+
+  def field_type(v: Type, s: String) : Type = v match {
+    case vx: BundleType => vx.fields find (_.name == s) match {
+      case Some(f) => f.tpe
+      case None => UnknownType
+    }
+    case vx => UnknownType
+  }
+
   def error(str: String, cause: Throwable = null) = throw new FirrtlInternalException(str, cause)
+
+  // =========== FLOW/FLIP UTILS ============
+  def to_flip(d: Direction): Orientation = d match {
+    case Input => Flip
+    case Output => Default
+  }
 }
 
 object getWidth {

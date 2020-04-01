@@ -12,8 +12,19 @@ object PrintIR {
     case fir.Input  => "Input"
     case fir.Output => "Output"
   }
-  def type_str(d: fir.Type) = d match {
+  def bundle_str(b: fir.BundleType) = {
+    b.fields map field_str mkString ", "
+  }
+  def field_str(f: fir.Field) = {
+    s"${f.name}: ${ori_str(f.flip)} ${type_str(f.tpe)}"
+  }
+  def ori_str(o: fir.Orientation) = o match {
+    case fir.Default => "Default"
+    case fir.Flip    => "Flip"
+  }
+  def type_str(d: fir.Type): String = d match {
     case fir.UIntType(w)  => s"UInt(${w_str(w)})"
+    case bundle: fir.BundleType  => s"Bundle( ${bundle_str(bundle)} )"
     case fir.UnknownType => "UnknownType"
   }
   def w_str(w: fir.Width) = w match {
@@ -25,7 +36,7 @@ object PrintIR {
       case fir.DefNode(n, v) => s"${tab(l)}DefNode: $n\n${tab(l+1)}${e_str(v, l+1)}"
       case fir.Block(s) => s"${tab(l)}Block\n" + (s map { x => stmt_str(x, l+1) } mkString "\n")
       case fir.Connect(left, right) =>
-        s"${tab(l)}Connect\n${tab(l+1)}${e_str(left, l+1)} ${e_str(right, l+1)}"
+        s"${tab(l)}Connect\n${tab(l+1)}${e_str(left, l+1)}\n${tab(l+1)}${e_str(right, l+1)}"
       case fir.DefInstance(n, m) => s"${tab(l)}DefInstance: inst $n of $m"
     }
   }
@@ -52,7 +63,9 @@ object PrintIR {
   }
 
   def print_fir(ast: fir.Circuit) = {
-    println(s"Circuit: ${ast.main}")
+    println(s"Circuit:")
+    println(s"  modules: [${ast.modules map { _.name } mkString ", "}]")
+    println(s"  main: ${ast.main}\n")
     ast.modules foreach { m =>
       print(tab(1))
       println(m_str(m.name))
