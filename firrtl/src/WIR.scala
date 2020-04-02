@@ -5,6 +5,7 @@ import Utils._
 import firrtl.ir._
 
 trait Kind
+case object InstanceKind extends Kind
 case object PortKind extends Kind
 case object NodeKind extends Kind
 case object UnknownKind extends Kind

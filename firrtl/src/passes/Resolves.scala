@@ -5,6 +5,8 @@ import firrtl._
 import firrtl.ir._
 import firrtl.Mappers._
 
+import debug.PrintIR.print_fir
+
 object ResolveKinds extends Pass {
   type KindMap = collection.mutable.LinkedHashMap[String, Kind]
 
@@ -15,6 +17,7 @@ object ResolveKinds extends Pass {
   def find_stmt(kinds: KindMap)(s: Statement):Statement = {
     s match {
       case sx: DefNode => kinds(sx.name) = NodeKind
+      case sx: WDefInstance => kinds(sx.name) = InstanceKind
       case _ =>
     }
     s map find_stmt(kinds)
@@ -35,13 +38,23 @@ object ResolveKinds extends Pass {
        map resolve_stmt(kinds))
   }
 
-  def run(c: Circuit): Circuit =
-    c copy (modules = c.modules map resolve_kinds)
+  def run(c: Circuit): Circuit = {
+    println("Run ResolveKinds ......")
+    val res = c copy (modules = c.modules map resolve_kinds)
+    println("Done ResolveKinds.")
+    print_fir(res)
+    res
+  }
 }
 
 object ResolveFlows extends Pass {
   def resolve_e(g: Flow)(e: Expression): Expression = e match {
     case ex: WRef => ex copy (flow = g)
+    case WSubField(exp, name, tpe, _) => WSubField(
+      Utils.field_flip(exp.tpe, name) match {
+        case Default => resolve_e(g)(exp)
+        case Flip => resolve_e(Utils.swap(g))(exp)
+      }, name, tpe, g)
     case _ => e map resolve_e(g)
   }
 
@@ -53,6 +66,11 @@ object ResolveFlows extends Pass {
 
   def resolve_flow(m: DefModule): DefModule = m map resolve_s
 
-  def run(c: Circuit): Circuit =
-    c copy (modules = c.modules map resolve_flow)
+  def run(c: Circuit): Circuit = {
+    println("Run ResolveFlows ......")
+    val res = c copy (modules = c.modules map resolve_flow)
+    println("Done ResolveFlows.")
+    print_fir(res)
+    res
+  }
 }

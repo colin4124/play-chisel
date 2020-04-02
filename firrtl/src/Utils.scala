@@ -50,9 +50,21 @@ object Utils {
   def error(str: String, cause: Throwable = null) = throw new FirrtlInternalException(str, cause)
 
   // =========== FLOW/FLIP UTILS ============
+  def swap(g: Flow) : Flow = g match {
+    case UnknownFlow => UnknownFlow
+    case SourceFlow => SinkFlow
+    case SinkFlow => SourceFlow
+  }
   def to_flip(d: Direction): Orientation = d match {
     case Input => Flip
     case Output => Default
+  }
+  def field_flip(v: Type, s: String): Orientation = v match {
+    case vx: BundleType => vx.fields find (_.name == s) match {
+      case Some(ft) => ft.flip
+      case None => Default
+    }
+    case vx => Default
   }
 }
 

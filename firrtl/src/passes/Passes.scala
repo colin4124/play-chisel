@@ -38,11 +38,6 @@ object ToWorkingIR extends Pass {
     case sx => sx map toStmt
   }
 
-  def run (c:Circuit): Circuit = {
-    println("Run ToWorkingIR  ......")
-    val res = c copy (modules = c.modules map (_ map toStmt))
-    println("Done ToWorkingIR.")
-    print_fir(res)
-    res
-  }
+  def run (c:Circuit): Circuit =
+    c copy (modules = c.modules map (_ map toStmt))
 }

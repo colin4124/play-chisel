@@ -54,6 +54,7 @@ object PrintIR {
     }
   }
   def k_str(k: Kind): String = k match {
+    case InstanceKind => "InstanceKind"
     case PortKind    => "PortKind"
     case NodeKind    => "NodeKind"
     case UnknownKind => "UnknownKind"
