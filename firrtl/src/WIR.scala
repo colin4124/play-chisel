@@ -49,6 +49,9 @@ private[firrtl] sealed trait HasMapWidth {
   def mapWidth(f: Width => Width): Width
 }
 
+case class VarWidth(name: String) extends Width with HasMapWidth {
+  def mapWidth(f: Width => Width): Width = this
+}
 case class PlusWidth(arg1: Width, arg2: Width) extends Width with HasMapWidth {
   def mapWidth(f: Width => Width): Width = PlusWidth(f(arg1), f(arg2))
 }
