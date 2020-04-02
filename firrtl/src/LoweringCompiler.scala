@@ -24,6 +24,7 @@ class ResolveAndCheck extends CoreTransform {
   def transforms = Seq(
     passes.ResolveKinds,
     passes.ResolveFlows,
+    passes.InferTypes,
   )
 }
 class HighFirrtlToMiddleFirrtl extends CoreTransform {
