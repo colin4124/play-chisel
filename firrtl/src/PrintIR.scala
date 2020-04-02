@@ -38,7 +38,7 @@ object PrintIR {
       case fir.Connect(left, right) =>
         s"${tab(l)}Connect\n${tab(l+1)}${e_str(left, l+1)}\n${tab(l+1)}${e_str(right, l+1)}"
       case fir.DefInstance(n, m) => s"${tab(l)}DefInstance: inst $n of $m"
-      case WDefInstance(n, m, t) => s"${tab(l)}WDefInstance($n, $m, $t)"
+      case WDefInstance(n, m, t) => s"${tab(l)}WDefInstance($n, $m, ${type_str(t)})"
     }
   }
   def e_str(e: fir.Expression, l: Int): String = {
