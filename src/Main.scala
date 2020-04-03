@@ -54,7 +54,6 @@ object Main extends App {
   w.close()
 
   val firrtl = Converter.convert(circuit)
-  print_fir(firrtl)
 
   val state = CircuitState(firrtl, ChirrtlForm)
   val compiler = new VerilogCompiler

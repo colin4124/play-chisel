@@ -160,7 +160,7 @@ class VerilogEmitter extends SeqTransform with Emitter {
       case m: Module =>
         val renderer = new VerilogRender(m)(writer)
         renderer.emit_verilog()
-        println(writer.toString)
+        // println(writer.toString)
       case _ => // do nothing
     }
   }

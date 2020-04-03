@@ -54,11 +54,7 @@ object InferTypes extends Pass {
       m map infer_types_p(types) map infer_types_s(types)
     }
 
-    println("Run InferTypes ......")
-    val res = c copy (modules = c.modules map infer_types)
-    println("Done InferTypes.")
-    print_fir(res)
-    res
+    c copy (modules = c.modules map infer_types)
   }
 }
 

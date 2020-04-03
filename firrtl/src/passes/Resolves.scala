@@ -38,13 +38,8 @@ object ResolveKinds extends Pass {
        map resolve_stmt(kinds))
   }
 
-  def run(c: Circuit): Circuit = {
-    println("Run ResolveKinds ......")
-    val res = c copy (modules = c.modules map resolve_kinds)
-    println("Done ResolveKinds.")
-    print_fir(res)
-    res
-  }
+  def run(c: Circuit): Circuit =
+    c copy (modules = c.modules map resolve_kinds)
 }
 
 object ResolveFlows extends Pass {
@@ -66,11 +61,6 @@ object ResolveFlows extends Pass {
 
   def resolve_flow(m: DefModule): DefModule = m map resolve_s
 
-  def run(c: Circuit): Circuit = {
-    println("Run ResolveFlows ......")
-    val res = c copy (modules = c.modules map resolve_flow)
-    println("Done ResolveFlows.")
-    print_fir(res)
-    res
-  }
+  def run(c: Circuit): Circuit =
+    c copy (modules = c.modules map resolve_flow)
 }

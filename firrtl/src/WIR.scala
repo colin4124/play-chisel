@@ -27,12 +27,14 @@ case class WRef(name: String, tpe: Type, kind: Kind, flow: Flow) extends Express
 }
 
 case class WSubField(expr: Expression, name: String, tpe: Type, flow: Flow) extends Expression with GenderFromFlow {
+  def serialize: String = s"${expr.serialize}.$name"
   def mapExpr(f: Expression => Expression): Expression = this.copy(expr = f(expr))
   def mapType(f: Type => Type): Expression = this.copy(tpe = f(tpe))
   def mapWidth(f: Width => Width): Expression = this
 }
 
 case class WDefInstance(name: String, module: String, tpe: Type) extends Statement with IsDeclaration {
+  def serialize: String = s"inst $name of $module"
   def mapExpr(f: Expression => Expression): Statement = this
   def mapStmt(f: Statement => Statement): Statement = this
   def mapType(f: Type => Type): Statement = this.copy(tpe = f(tpe))
@@ -42,6 +44,9 @@ case class WDefInstance(name: String, module: String, tpe: Type) extends Stateme
   def foreachType(f: Type => Unit): Unit = f(tpe)
   def foreachString(f: String => Unit): Unit = f(name)
 }
+object WDefInstance {
+  def apply(name: String, module: String): WDefInstance = new WDefInstance(name, module, UnknownType)
+}
 
 class WrappedExpression(val e1: Expression)
 
@@ -50,14 +55,18 @@ private[firrtl] sealed trait HasMapWidth {
 }
 
 case class VarWidth(name: String) extends Width with HasMapWidth {
+  def serialize: String = name
   def mapWidth(f: Width => Width): Width = this
 }
 case class PlusWidth(arg1: Width, arg2: Width) extends Width with HasMapWidth {
+  def serialize: String = "(" + arg1.serialize + " + " + arg2.serialize + ")"
   def mapWidth(f: Width => Width): Width = PlusWidth(f(arg1), f(arg2))
 }
 case class MinusWidth(arg1: Width, arg2: Width) extends Width with HasMapWidth {
+  def serialize: String = "(" + arg1.serialize + " - " + arg2.serialize + ")"
   def mapWidth(f: Width => Width): Width = MinusWidth(f(arg1), f(arg2))
 }
 case class MaxWidth(args: Seq[Width]) extends Width with HasMapWidth {
+  def serialize: String = args map (_.serialize) mkString ("max(", ", ", ")")
   def mapWidth(f: Width => Width): Width = MaxWidth(args map f)
 }

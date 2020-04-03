@@ -33,6 +33,9 @@ object Utils {
 
   implicit def toWrappedExpression (x:Expression): WrappedExpression = new WrappedExpression(x)
 
+  /** Indent the results of [[ir.FirrtlNode.serialize]] */
+  def indent(str: String) = str replaceAllLiterally ("\n", "\n  ")
+
   def max(a: BigInt, b: BigInt): BigInt = if (a >= b) a else b
 
   def module_type(m: DefModule): BundleType = BundleType(m.ports map {
